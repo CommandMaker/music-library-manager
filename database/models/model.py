@@ -13,3 +13,19 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
+from abc import ABC, abstractmethod
+from typing import Self
+
+
+class Model(ABC):
+    '''
+    This class is the super-class for all database models.
+    It contains the most basic functions that all models needs.
+    '''
+
+    @classmethod
+    @abstractmethod
+    def build_from_dict(cls, dikt: dict[str, str]) -> Self:
+        pass
