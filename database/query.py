@@ -14,8 +14,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from enum import Enum
 import sqlite3
-from typing import TypeVar
+from typing import Self, TypeVar
 
 from database.connection import DatabaseConnection
 from database.models.model import Model
@@ -23,7 +24,23 @@ from database.models.model import Model
 
 T = TypeVar('T', bound='Model')
 
-class DatabaseQuery:
+class SQLOperation(Enum):
+    EQUALS = '='
+    GT = '>'
+    LT = '<'
+    GTE = '>='
+    LTE = '<='
+    DIFF = '!='
+
+    LIKE = 'LIKE'
+
+
+class SQLOrder(Enum):
+    ASCENDING = 'ASC'
+    DESCENDING = 'DESC'
+
+
+class SelectQuery:
     '''
     Build an SQL query and fetch results from the database connection
     '''
@@ -39,6 +56,43 @@ class DatabaseQuery:
         @returns {str} The built query from the current query class
         '''
         return ' '.join(self.query)
+
+
+    def where(self, needle: str, operation: SQLOperation, haystack: str) -> Self:
+        '''
+        Add a WHERE clause to the query.
+
+        @param {str} needle The left hand of the clause (a column name)
+        @param {SQLOperation} operation The operator to use in the clause (see the enum for the list of operations)
+        @param {str} haystack The column to test the needle against
+        @returns {Self} The updated query
+        '''
+        self.query += [f"WHERE {needle} {operation} '{haystack}'"]
+
+        return self
+
+
+    def order_by(self, column: str, order: SQLOrder) -> Self:
+        '''
+        Add an ORDER BY clause to the query
+
+        @param {str} column The column to order by
+        @param {SQLOrder} order The order to sort in
+        '''
+        self.query += [f'ORDER BY {column} {order}']
+
+        return self
+
+
+    def limit(self, n: int) -> Self:
+        '''
+        Add a LIMIT clause to the query.
+
+        @param {int} n The number of elements to return at most
+        '''
+        self.query += [f'LIMIT {n}']
+
+        return self
 
 
     def fetch_all(self, klass: type[T]) -> list[T]:

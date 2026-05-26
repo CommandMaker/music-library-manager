@@ -17,7 +17,7 @@
 
 from typing import override
 from database.models.model import Model
-from database.query import DatabaseQuery
+from database.query import SelectQuery
 
 
 class Artist(Model):
@@ -34,7 +34,8 @@ class Artist(Model):
 
     @staticmethod
     def fetch_artists() -> list[Artist]:
-        artists = DatabaseQuery('artists').fetch_all(Artist)
+        artists = SelectQuery('artists')\
+            .fetch_all(Artist)
         return artists
 
 
